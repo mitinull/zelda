@@ -6,7 +6,7 @@
     cogden@cs50.harvard.edu
 ]]
 
-Room = Class{}
+Room = Class {}
 
 function Room:init(player)
     self.width = MAP_WIDTH
@@ -46,7 +46,7 @@ end
     Randomly creates an assortment of enemies for the player to fight.
 ]]
 function Room:generateEntities()
-    local types = {'skeleton', 'slime', 'bat', 'ghost', 'spider'}
+    local types = { 'skeleton', 'slime', 'bat', 'ghost', 'spider' }
 
     for i = 1, 10 do
         local type = types[math.random(#types)]
@@ -60,7 +60,7 @@ function Room:generateEntities()
                 VIRTUAL_WIDTH - TILE_SIZE * 2 - 16),
             y = math.random(MAP_RENDER_OFFSET_Y + TILE_SIZE,
                 VIRTUAL_HEIGHT - (VIRTUAL_HEIGHT - MAP_HEIGHT * TILE_SIZE) + MAP_RENDER_OFFSET_Y - TILE_SIZE - 16),
-            
+
             width = 16,
             height = 16,
 
@@ -83,16 +83,16 @@ function Room:generateObjects()
     local switch = GameObject(
         GAME_OBJECT_DEFS['switch'],
         math.random(MAP_RENDER_OFFSET_X + TILE_SIZE,
-                    VIRTUAL_WIDTH - TILE_SIZE * 2 - 16),
+            VIRTUAL_WIDTH - TILE_SIZE * 2 - 16),
         math.random(MAP_RENDER_OFFSET_Y + TILE_SIZE,
-                    VIRTUAL_HEIGHT - (VIRTUAL_HEIGHT - MAP_HEIGHT * TILE_SIZE) + MAP_RENDER_OFFSET_Y - TILE_SIZE - 16)
+            VIRTUAL_HEIGHT - (VIRTUAL_HEIGHT - MAP_HEIGHT * TILE_SIZE) + MAP_RENDER_OFFSET_Y - TILE_SIZE - 16)
     )
 
     -- define a function for the switch that will open all doors in the room
     switch.onCollide = function()
         if switch.state == 'unpressed' then
             switch.state = 'pressed'
-            
+
             -- open every door in the room if we press the switch
             for k, doorway in pairs(self.doorways) do
                 doorway.open = true
@@ -104,6 +104,19 @@ function Room:generateObjects()
 
     -- add to list of objects in scene (only one switch for now)
     table.insert(self.objects, switch)
+
+    local heart = GameObject(
+        GAME_OBJECT_DEFS['heart'],
+        MAP_RENDER_OFFSET_X + TILE_SIZE,
+        MAP_RENDER_OFFSET_Y + TILE_SIZE
+    )
+
+    heart.onConsume = function()
+        gSounds['sword']:play()
+        self.player:heal(2)
+    end
+
+    table.insert(self.objects, heart)
 end
 
 --[[
@@ -125,8 +138,8 @@ function Room:generateWallsAndFloors()
                 id = TILE_TOP_RIGHT_CORNER
             elseif x == self.width and y == self.height then
                 id = TILE_BOTTOM_RIGHT_CORNER
-            
-            -- random left-hand walls, right walls, top, bottom, and floors
+
+                -- random left-hand walls, right walls, top, bottom, and floors
             elseif x == 1 then
                 id = TILE_LEFT_WALLS[math.random(#TILE_LEFT_WALLS)]
             elseif x == self.width then
@@ -138,7 +151,7 @@ function Room:generateWallsAndFloors()
             else
                 id = TILE_FLOORS[math.random(#TILE_FLOORS)]
             end
-            
+
             table.insert(self.tiles[y], {
                 id = id
             })
@@ -147,7 +160,6 @@ function Room:generateWallsAndFloors()
 end
 
 function Room:update(dt)
-    
     -- don't update anything if we are sliding to another room (we have offsets)
     if self.adjacentOffsetX ~= 0 or self.adjacentOffsetY ~= 0 then return end
 
@@ -160,7 +172,7 @@ function Room:update(dt)
         if entity.health <= 0 then
             entity.dead = true
         elseif not entity.dead then
-            entity:processAI({room = self}, dt)
+            entity:processAI({ room = self }, dt)
             entity:update(dt)
         end
 
@@ -181,7 +193,12 @@ function Room:update(dt)
 
         -- trigger collision callback on object
         if self.player:collides(object) then
-            object:onCollide()
+            if object.consumable then
+                object:onConsume()
+                table.remove(self.objects, k)
+            else
+                object:onCollide()
+            end
         end
     end
 end
@@ -191,7 +208,7 @@ function Room:render()
         for x = 1, self.width do
             local tile = self.tiles[y][x]
             love.graphics.draw(gTextures['tiles'], gFrames['tiles'][tile.id],
-                (x - 1) * TILE_SIZE + self.renderOffsetX + self.adjacentOffsetX, 
+                (x - 1) * TILE_SIZE + self.renderOffsetX + self.adjacentOffsetX,
                 (y - 1) * TILE_SIZE + self.renderOffsetY + self.adjacentOffsetY)
         end
     end
@@ -212,26 +229,25 @@ function Room:render()
 
     -- stencil out the door arches so it looks like the player is going through
     love.graphics.stencil(function()
-        
         -- left
         love.graphics.rectangle('fill', -TILE_SIZE - 6, MAP_RENDER_OFFSET_Y + (MAP_HEIGHT / 2) * TILE_SIZE - TILE_SIZE,
             TILE_SIZE * 2 + 6, TILE_SIZE * 2)
-        
+
         -- right
         love.graphics.rectangle('fill', MAP_RENDER_OFFSET_X + (MAP_WIDTH * TILE_SIZE),
             MAP_RENDER_OFFSET_Y + (MAP_HEIGHT / 2) * TILE_SIZE - TILE_SIZE, TILE_SIZE * 2 + 6, TILE_SIZE * 2)
-        
+
         -- top
         love.graphics.rectangle('fill', MAP_RENDER_OFFSET_X + (MAP_WIDTH / 2) * TILE_SIZE - TILE_SIZE,
             -TILE_SIZE - 6, TILE_SIZE * 2, TILE_SIZE * 2 + 12)
-        
+
         --bottom
         love.graphics.rectangle('fill', MAP_RENDER_OFFSET_X + (MAP_WIDTH / 2) * TILE_SIZE - TILE_SIZE,
             VIRTUAL_HEIGHT - TILE_SIZE - 6, TILE_SIZE * 2, TILE_SIZE * 2 + 12)
     end, 'replace', 1)
 
     love.graphics.setStencilTest('less', 1)
-    
+
     if self.player then
         self.player:render()
     end
@@ -243,7 +259,7 @@ function Room:render()
     --
 
     -- love.graphics.setColor(255, 0, 0, 100)
-    
+
     -- -- left
     -- love.graphics.rectangle('fill', -TILE_SIZE - 6, MAP_RENDER_OFFSET_Y + (MAP_HEIGHT / 2) * TILE_SIZE - TILE_SIZE,
     -- TILE_SIZE * 2 + 6, TILE_SIZE * 2)
@@ -259,6 +275,6 @@ function Room:render()
     -- --bottom
     -- love.graphics.rectangle('fill', MAP_RENDER_OFFSET_X + (MAP_WIDTH / 2) * TILE_SIZE - TILE_SIZE,
     --     VIRTUAL_HEIGHT - TILE_SIZE - 6, TILE_SIZE * 2, TILE_SIZE * 2 + 12)
-    
+
     -- love.graphics.setColor(255, 255, 255, 255)
 end

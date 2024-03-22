@@ -6,10 +6,9 @@
     cogden@cs50.harvard.edu
 ]]
 
-Entity = Class{}
+Entity = Class {}
 
 function Entity:init(def)
-
     -- in top-down games, there are four directions instead of two
     self.direction = 'down'
 
@@ -28,6 +27,7 @@ function Entity:init(def)
     self.walkSpeed = def.walkSpeed
 
     self.health = def.health
+    self.maxHealth = def.maxHealth or self.health
 
     -- flags for flashing the entity when hit
     self.invulnerable = false
@@ -59,11 +59,15 @@ end
 ]]
 function Entity:collides(target)
     return not (self.x + self.width < target.x or self.x > target.x + target.width or
-                self.y + self.height < target.y or self.y > target.y + target.height)
+        self.y + self.height < target.y or self.y > target.y + target.height)
 end
 
 function Entity:damage(dmg)
     self.health = self.health - dmg
+end
+
+function Entity:heal(heal)
+    self.health = math.min(self.health + heal, self.maxHealth)
 end
 
 function Entity:goInvulnerable(duration)
@@ -104,11 +108,10 @@ function Entity:processAI(params, dt)
 end
 
 function Entity:render(adjacentOffsetX, adjacentOffsetY)
-    
     -- draw sprite slightly transparent if invulnerable every 0.04 seconds
     if self.invulnerable and self.flashTimer > 0.06 then
         self.flashTimer = 0
-        love.graphics.setColor(1, 1, 1, 64/255)
+        love.graphics.setColor(1, 1, 1, 64 / 255)
     end
 
     self.x, self.y = self.x + (adjacentOffsetX or 0), self.y + (adjacentOffsetY or 0)

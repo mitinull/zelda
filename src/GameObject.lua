@@ -6,10 +6,9 @@
     cogden@cs50.harvard.edu
 ]]
 
-GameObject = Class{}
+GameObject = Class {}
 
 function GameObject:init(def, x, y)
-    
     -- string identifying this object type
     self.type = def.type
 
@@ -18,6 +17,7 @@ function GameObject:init(def, x, y)
 
     -- whether it acts as an obstacle or not
     self.solid = def.solid
+    self.consumable = def.consumable
 
     self.defaultState = def.defaultState
     self.state = self.defaultState
@@ -38,6 +38,7 @@ function GameObject:update(dt)
 end
 
 function GameObject:render(adjacentOffsetX, adjacentOffsetY)
-    love.graphics.draw(gTextures[self.texture], gFrames[self.texture][self.states[self.state].frame or self.frame],
+    love.graphics.draw(gTextures[self.texture],
+        gFrames[self.texture][self.state and self.states[self.state].frame or self.frame],
         self.x + adjacentOffsetX, self.y + adjacentOffsetY)
 end
