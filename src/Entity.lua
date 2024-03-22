@@ -29,6 +29,8 @@ function Entity:init(def)
     self.health = def.health
     self.maxHealth = def.maxHealth or self.health
 
+    self.dropsHeart = def.dropsHeart
+
     -- flags for flashing the entity when hit
     self.invulnerable = false
     self.invulnerableDuration = 0

@@ -51,9 +51,10 @@ function Room:generateEntities()
     for i = 1, 10 do
         local type = types[math.random(#types)]
 
-        table.insert(self.entities, Entity {
+        local entity = Entity {
             animations = ENTITY_DEFS[type].animations,
             walkSpeed = ENTITY_DEFS[type].walkSpeed or 20,
+            dropsHeart = ENTITY_DEFS[type].dropsHeart,
 
             -- ensure X and Y are within bounds of the map
             x = math.random(MAP_RENDER_OFFSET_X + TILE_SIZE,
@@ -65,14 +66,24 @@ function Room:generateEntities()
             height = 16,
 
             health = 1
-        })
-
-        self.entities[i].stateMachine = StateMachine {
-            ['walk'] = function() return EntityWalkState(self.entities[i]) end,
-            ['idle'] = function() return EntityIdleState(self.entities[i]) end
         }
 
-        self.entities[i]:changeState('walk')
+        entity.stateMachine = StateMachine {
+            ['walk'] = function() return EntityWalkState(entity) end,
+            ['idle'] = function() return EntityIdleState(entity) end
+        }
+
+        entity:changeState('walk')
+
+        if entity.dropsHeart then
+            Timer.after(math.random(5, 20), function()
+                if not entity.dead then
+                    self:generateHeart(entity.x, entity.y)
+                end
+            end)
+        end
+
+        table.insert(self.entities, entity)
     end
 end
 
@@ -104,19 +115,6 @@ function Room:generateObjects()
 
     -- add to list of objects in scene (only one switch for now)
     table.insert(self.objects, switch)
-
-    local heart = GameObject(
-        GAME_OBJECT_DEFS['heart'],
-        MAP_RENDER_OFFSET_X + TILE_SIZE,
-        MAP_RENDER_OFFSET_Y + TILE_SIZE
-    )
-
-    heart.onConsume = function()
-        gSounds['sword']:play()
-        self.player:heal(2)
-    end
-
-    table.insert(self.objects, heart)
 end
 
 --[[
@@ -277,4 +275,15 @@ function Room:render()
     --     VIRTUAL_HEIGHT - TILE_SIZE - 6, TILE_SIZE * 2, TILE_SIZE * 2 + 12)
 
     -- love.graphics.setColor(255, 255, 255, 255)
+end
+
+function Room:generateHeart(x, y)
+    local heart = GameObject(GAME_OBJECT_DEFS['heart'], x, y)
+
+    heart.onConsume = function()
+        gSounds['sword']:play()
+        self.player:heal(2)
+    end
+
+    table.insert(self.objects, heart)
 end
