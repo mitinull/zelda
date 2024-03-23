@@ -115,6 +115,10 @@ function Room:generateObjects()
 
     -- add to list of objects in scene (only one switch for now)
     table.insert(self.objects, switch)
+
+    local pot = GameObject(GAME_OBJECT_DEFS['pot'], MAP_RENDER_OFFSET_X + 2 * TILE_SIZE,
+        MAP_RENDER_OFFSET_Y + 2 * TILE_SIZE)
+    table.insert(self.objects, pot)
 end
 
 --[[
@@ -194,6 +198,16 @@ function Room:update(dt)
             if object.consumable then
                 object:onConsume()
                 table.remove(self.objects, k)
+            elseif object.solid then
+                if self.player.direction == 'left' then
+                    self.player.x = self.player.x + self.player.walkSpeed * dt
+                elseif self.player.direction == 'right' then
+                    self.player.x = self.player.x - self.player.walkSpeed * dt
+                elseif self.player.direction == 'up' then
+                    self.player.y = self.player.y + self.player.walkSpeed * dt
+                elseif self.player.direction == 'down' then
+                    self.player.y = self.player.y - self.player.walkSpeed * dt
+                end
             else
                 object:onCollide()
             end

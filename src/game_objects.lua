@@ -34,6 +34,20 @@ GAME_OBJECT_DEFS = {
         consumable = true,
     },
     ['pot'] = {
-        -- TODO
+        type = 'pot',
+        texture = 'tiles',
+        frame = 14,
+        width = 16,
+        height = 16,
+        solid = true,
+        defaultState = 'unbroken',
+        states = {
+            ['unbroken'] = {
+                frame = 14
+            },
+            ['broken'] = {
+                frame = 52
+            }
+        }
     }
 }

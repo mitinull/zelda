@@ -6,7 +6,7 @@
     cogden@cs50.harvard.edu
 ]]
 
-PlayerWalkState = Class{__includes = EntityWalkState}
+PlayerWalkState = Class { __includes = EntityWalkState }
 
 function PlayerWalkState:init(player, dungeon)
     self.entity = player
@@ -44,14 +44,12 @@ function PlayerWalkState:update(dt)
     -- if we bumped something when checking collision, check any object collisions
     if self.bumped then
         if self.entity.direction == 'left' then
-            
             -- temporarily adjust position into the wall, since bumping pushes outward
             self.entity.x = self.entity.x - PLAYER_WALK_SPEED * dt
-            
+
             -- check for colliding into doorway to transition
             for k, doorway in pairs(self.dungeon.currentRoom.doorways) do
                 if self.entity:collides(doorway) and doorway.open then
-
                     -- shift entity to center of door to avoid phasing through wall
                     self.entity.y = doorway.y + 4
                     Event.dispatch('shift-left')
@@ -61,14 +59,12 @@ function PlayerWalkState:update(dt)
             -- readjust
             self.entity.x = self.entity.x + PLAYER_WALK_SPEED * dt
         elseif self.entity.direction == 'right' then
-            
             -- temporarily adjust position
             self.entity.x = self.entity.x + PLAYER_WALK_SPEED * dt
-            
+
             -- check for colliding into doorway to transition
             for k, doorway in pairs(self.dungeon.currentRoom.doorways) do
                 if self.entity:collides(doorway) and doorway.open then
-
                     -- shift entity to center of door to avoid phasing through wall
                     self.entity.y = doorway.y + 4
                     Event.dispatch('shift-right')
@@ -78,14 +74,12 @@ function PlayerWalkState:update(dt)
             -- readjust
             self.entity.x = self.entity.x - PLAYER_WALK_SPEED * dt
         elseif self.entity.direction == 'up' then
-            
             -- temporarily adjust position
             self.entity.y = self.entity.y - PLAYER_WALK_SPEED * dt
-            
+
             -- check for colliding into doorway to transition
             for k, doorway in pairs(self.dungeon.currentRoom.doorways) do
                 if self.entity:collides(doorway) and doorway.open then
-
                     -- shift entity to center of door to avoid phasing through wall
                     self.entity.x = doorway.x + 8
                     Event.dispatch('shift-up')
@@ -95,14 +89,12 @@ function PlayerWalkState:update(dt)
             -- readjust
             self.entity.y = self.entity.y + PLAYER_WALK_SPEED * dt
         else
-            
             -- temporarily adjust position
             self.entity.y = self.entity.y + PLAYER_WALK_SPEED * dt
-            
+
             -- check for colliding into doorway to transition
             for k, doorway in pairs(self.dungeon.currentRoom.doorways) do
                 if self.entity:collides(doorway) and doorway.open then
-
                     -- shift entity to center of door to avoid phasing through wall
                     self.entity.x = doorway.x + 8
                     Event.dispatch('shift-down')
