@@ -16,8 +16,8 @@ function PlayerLiftState:enter(params)
 end
 
 function PlayerLiftState:update(dt)
-    if self.entity.currentAnimation.timesPlayed > 0 then
-        self.entity.currentAnimation.timesPlayed = 0
+    if self.entity.currentAnimation.currentFrame >= #self.entity.currentAnimation.frames then
+        self.entity.currentAnimation:refresh()
         self.entity:changeState('pot-idle')
     end
 end
