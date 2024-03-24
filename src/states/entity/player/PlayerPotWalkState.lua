@@ -39,7 +39,7 @@ function PlayerPotWalkState:update(dt)
     end
 
     if love.keyboard.wasPressed('space') then
-        self.entity:changeState('idle')
+        self.entity:changeState('throw', { pot = self.pot })
     end
 
     -- perform base collision detection against walls
