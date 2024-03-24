@@ -13,12 +13,13 @@ function PlayerPotIdleState:enter(params)
     self.entity.offsetY = 5
     self.entity.offsetX = 0
     self.entity:changeAnimation('idle-pot-' .. self.entity.direction)
+    self.pot = params.pot
 end
 
 function PlayerPotIdleState:update(dt)
     if love.keyboard.isDown('left') or love.keyboard.isDown('right') or
         love.keyboard.isDown('up') or love.keyboard.isDown('down') then
-        self.entity:changeState('pot-walk')
+        self.entity:changeState('pot-walk', { pot = self.pot })
     end
 
     if love.keyboard.wasPressed('space') then

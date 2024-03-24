@@ -17,6 +17,10 @@ function PlayerPotWalkState:init(player, dungeon)
     self.entity.offsetX = 0
 end
 
+function PlayerPotWalkState:enter(params)
+    self.pot = params.pot
+end
+
 function PlayerPotWalkState:update(dt)
     if love.keyboard.isDown('left') then
         self.entity.direction = 'left'
@@ -31,7 +35,7 @@ function PlayerPotWalkState:update(dt)
         self.entity.direction = 'down'
         self.entity:changeAnimation('walk-pot-down')
     else
-        self.entity:changeState('pot-idle')
+        self.entity:changeState('pot-idle', { pot = self.pot })
     end
 
     if love.keyboard.wasPressed('space') then
@@ -105,4 +109,7 @@ function PlayerPotWalkState:update(dt)
             self.entity.y = self.entity.y - PLAYER_WALK_SPEED * dt
         end
     end
+
+    self.pot.x = self.entity.x
+    self.pot.y = self.entity.y - 8
 end

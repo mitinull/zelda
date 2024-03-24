@@ -266,6 +266,12 @@ function Room:render()
 
     love.graphics.setStencilTest()
 
+    for k, object in pairs(self.objects) do
+        if object.type == 'pot' and object.pickedUp then
+            object:render(self.adjacentOffsetX, self.adjacentOffsetY)
+        end
+    end
+
     --
     -- DEBUG DRAWING OF STENCIL RECTANGLES
     --
