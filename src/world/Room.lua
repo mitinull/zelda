@@ -191,25 +191,43 @@ function Room:update(dt)
     end
 
     for k, object in pairs(self.objects) do
-        object:update(dt)
+        if not object.destroyed then
+            object:update(dt)
 
-        -- trigger collision callback on object
-        if self.player:collides(object) then
-            if object.consumable then
-                object:onConsume()
-                table.remove(self.objects, k)
-            elseif object.solid then
-                if self.player.direction == 'left' then
-                    self.player.x = self.player.x + self.player.walkSpeed * dt
-                elseif self.player.direction == 'right' then
-                    self.player.x = self.player.x - self.player.walkSpeed * dt
-                elseif self.player.direction == 'up' then
-                    self.player.y = self.player.y + self.player.walkSpeed * dt
-                elseif self.player.direction == 'down' then
-                    self.player.y = self.player.y - self.player.walkSpeed * dt
+            -- trigger collision callback on object
+            if self.player:collides(object) then
+                if object.consumable then
+                    object:onConsume()
+                    table.remove(self.objects, k)
+                elseif object.solid then
+                    if self.player.direction == 'left' then
+                        self.player.x = self.player.x + self.player.walkSpeed * dt
+                    elseif self.player.direction == 'right' then
+                        self.player.x = self.player.x - self.player.walkSpeed * dt
+                    elseif self.player.direction == 'up' then
+                        self.player.y = self.player.y + self.player.walkSpeed * dt
+                    elseif self.player.direction == 'down' then
+                        self.player.y = self.player.y - self.player.walkSpeed * dt
+                    end
+                else
+                    object:onCollide()
                 end
-            else
-                object:onCollide()
+            end
+
+            if object.type == 'pot' and object.thrown then
+                if object.x < self.renderOffsetX + 5 then
+                    object.x = self.renderOffsetX + 5
+                    object:destroy()
+                elseif object.x > self.renderOffsetX + (MAP_WIDTH - 1) * TILE_SIZE - 5 then
+                    object.x = self.renderOffsetX + (MAP_WIDTH - 1) * TILE_SIZE - 5
+                    object:destroy()
+                elseif object.y < self.renderOffsetY + 5 then
+                    object.y = self.renderOffsetY + 5
+                    object:destroy()
+                elseif object.y > self.renderOffsetY + (MAP_HEIGHT - 1) * TILE_SIZE - 5 then
+                    object.y = self.renderOffsetY + (MAP_HEIGHT - 1) * TILE_SIZE - 5
+                    object:destroy()
+                end
             end
         end
     end
@@ -232,7 +250,7 @@ function Room:render()
     end
 
     for k, object in pairs(self.objects) do
-        object:render(self.adjacentOffsetX, self.adjacentOffsetY)
+        if not object.destroyed then object:render(self.adjacentOffsetX, self.adjacentOffsetY) end
     end
 
     for k, entity in pairs(self.entities) do
@@ -267,7 +285,7 @@ function Room:render()
     love.graphics.setStencilTest()
 
     for k, object in pairs(self.objects) do
-        if object.type == 'pot' and object.pickedUp then
+        if not object.destroyed and object.type == 'pot' and object.pickedUp then
             object:render(self.adjacentOffsetX, self.adjacentOffsetY)
         end
     end

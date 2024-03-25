@@ -29,6 +29,8 @@ function GameObject:init(def, x, y)
     self.width = def.width
     self.height = def.height
 
+    self.destroyed = false
+
     -- default empty collision callback
     self.onCollide = function() end
 end
@@ -46,4 +48,11 @@ end
 function GameObject:collides(target)
     return not (self.x + self.width < target.x or self.x > target.x + target.width or
         self.y + self.height < target.y or self.y > target.y + target.height)
+end
+
+function GameObject:destroy()
+    self.state = 'broken'
+    Timer.after(1, function()
+        self.destroyed = true
+    end)
 end
