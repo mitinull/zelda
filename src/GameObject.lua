@@ -51,7 +51,9 @@ function GameObject:collides(target)
 end
 
 function GameObject:destroy()
+    gSounds['break']:play()
     self.state = 'broken'
+    self.hitWall = true
     Timer.after(1, function()
         self.destroyed = true
     end)

@@ -14,6 +14,7 @@ function PlayerLiftState:enter(params)
     self.entity.offsetX = 0
     self.entity:changeAnimation('lift-' .. self.entity.direction)
     self.pot = params.pot
+    gSounds['pickup']:play()
 end
 
 function PlayerLiftState:update(dt)

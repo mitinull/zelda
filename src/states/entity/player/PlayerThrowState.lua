@@ -11,6 +11,7 @@ PlayerThrowState = Class { __includes = EntityIdleState }
 function PlayerThrowState:enter(params)
     self.entity:changeAnimation('throw-' .. self.entity.direction)
     self.pot = params.pot
+    gSounds['throw']:play()
 end
 
 function PlayerThrowState:update(dt)
@@ -33,6 +34,11 @@ function PlayerThrowState:update(dt)
         Timer.tween(.5, {
             [self.pot] = { x = newX, y = newY }
         })
+        Timer.after(.5, function()
+            if not self.pot.hitWall then
+                self.pot.destroyed = true
+            end
+        end)
     end
     if self.entity.currentAnimation.currentFrame >= #self.entity.currentAnimation.frames then
         self.pot.thrown = true

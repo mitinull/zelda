@@ -217,16 +217,16 @@ function Room:update(dt)
             if object.type == 'pot' and object.thrown then
                 if object.x < self.renderOffsetX + 5 then
                     object.x = self.renderOffsetX + 5
-                    object:destroy()
+                    if not object.hitWall then object:destroy() end
                 elseif object.x > self.renderOffsetX + (MAP_WIDTH - 1) * TILE_SIZE - 5 then
                     object.x = self.renderOffsetX + (MAP_WIDTH - 1) * TILE_SIZE - 5
-                    object:destroy()
+                    if not object.hitWall then object:destroy() end
                 elseif object.y < self.renderOffsetY + 5 then
                     object.y = self.renderOffsetY + 5
-                    object:destroy()
+                    if not object.hitWall then object:destroy() end
                 elseif object.y > self.renderOffsetY + (MAP_HEIGHT - 1) * TILE_SIZE - 5 then
                     object.y = self.renderOffsetY + (MAP_HEIGHT - 1) * TILE_SIZE - 5
-                    object:destroy()
+                    if not object.hitWall then object:destroy() end
                 end
             end
         end
