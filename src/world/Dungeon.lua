@@ -6,7 +6,7 @@
     cogden@cs50.harvard.edu
 ]]
 
-Dungeon = Class{}
+Dungeon = Class {}
 
 function Dungeon:init(player)
     self.player = player
@@ -48,7 +48,6 @@ end
     Prepares for the camera shifting process, kicking off a tween of the camera position.
 ]]
 function Dungeon:beginShifting(shiftX, shiftY)
-
     -- commence shifting and create a new room to transition to
     self.shifting = true
     self.nextRoom = Room(self.player)
@@ -76,13 +75,14 @@ function Dungeon:beginShifting(shiftX, shiftY)
         playerY = -VIRTUAL_HEIGHT + MAP_RENDER_OFFSET_Y + (MAP_HEIGHT * TILE_SIZE) - TILE_SIZE - self.player.height
     end
 
+    self.player:changeState('idle')
+
     -- tween the camera in whichever direction the new room is in, as well as the player to be
     -- at the opposite door in the next room, walking through the wall (which is stenciled)
     Timer.tween(1, {
-        [self] = {cameraX = shiftX, cameraY = shiftY},
-        [self.player] = {x = playerX, y = playerY}
+        [self] = { cameraX = shiftX, cameraY = shiftY },
+        [self.player] = { x = playerX, y = playerY }
     }):finish(function()
-
         -- set everything back to 0, with next room now the current room
         self:finishShifting()
 
@@ -115,7 +115,6 @@ end
     current room.
 ]]
 function Dungeon:finishShifting()
-
     -- reset camera and deactivate shifting to avoid translation
     self.cameraX = 0
     self.cameraY = 0
@@ -127,30 +126,27 @@ function Dungeon:finishShifting()
 
     -- this room (previously the off-screen room) should now be in the center, not offset
     self.currentRoom.adjacentOffsetX = 0
-    self.currentRoom.adjacentOffsetY = 0 
+    self.currentRoom.adjacentOffsetY = 0
 end
 
 function Dungeon:update(dt)
-    
     -- pause updating if we're in the middle of shifting
-    if not self.shifting then    
+    if not self.shifting then
         self.currentRoom:update(dt)
     else
-        
         -- still update the player animation if we're shifting rooms
         self.player.currentAnimation:update(dt)
     end
 end
 
 function Dungeon:render()
-    
     -- translate the camera if we're actively shifting
     if self.shifting then
         love.graphics.translate(-math.floor(self.cameraX), -math.floor(self.cameraY))
     end
 
     self.currentRoom:render()
-    
+
     if self.nextRoom then
         self.nextRoom:render()
     end

@@ -115,6 +115,15 @@ function Room:generateObjects()
 
     -- add to list of objects in scene (only one switch for now)
     table.insert(self.objects, switch)
+
+    local numPots = math.random(5) - 1
+    for i = 1, numPots do
+        table.insert(self.objects,
+            GameObject(GAME_OBJECT_DEFS['pot'],
+                MAP_RENDER_OFFSET_X + math.random((MAP_WIDTH - 2)
+                    * TILE_SIZE),
+                MAP_RENDER_OFFSET_Y + math.random((MAP_HEIGHT - 2) * TILE_SIZE)))
+    end
 end
 
 --[[
@@ -187,15 +196,44 @@ function Room:update(dt)
     end
 
     for k, object in pairs(self.objects) do
-        object:update(dt)
+        if not object.destroyed then
+            object:update(dt)
 
-        -- trigger collision callback on object
-        if self.player:collides(object) then
-            if object.consumable then
-                object:onConsume()
-                table.remove(self.objects, k)
-            else
-                object:onCollide()
+            -- trigger collision callback on object
+            if self.player:collides(object) then
+                if object.consumable then
+                    object:onConsume()
+                    table.remove(self.objects, k)
+                elseif object.solid then
+                    if self.player.direction == 'left' then
+                        self.player.x = self.player.x + self.player.walkSpeed * dt
+                    elseif self.player.direction == 'right' then
+                        self.player.x = self.player.x - self.player.walkSpeed * dt
+                    elseif self.player.direction == 'up' then
+                        self.player.y = self.player.y + self.player.walkSpeed * dt
+                    elseif self.player.direction == 'down' then
+                        self.player.y = self.player.y - self.player.walkSpeed * dt
+                    end
+                else
+                    object:onCollide()
+                end
+            end
+
+            if object.type == 'pot' and object.thrown and object.state == 'unbroken' then
+                for l, entity in pairs(self.entities) do
+                    if not entity.dead and entity:collides(object) then
+                        entity:damage(1)
+                        gSounds['hit-enemy']:play()
+                        object:destroy()
+                    end
+                end
+
+                if not object.hitWall and (object.x < self.renderOffsetX + 7 or
+                        object.x > self.renderOffsetX + (MAP_WIDTH - 1) * TILE_SIZE - 7 or
+                        object.y < self.renderOffsetY + 7 or
+                        object.y > self.renderOffsetY + (MAP_HEIGHT - 1) * TILE_SIZE - 7) then
+                    object:destroy()
+                end
             end
         end
     end
@@ -218,7 +256,7 @@ function Room:render()
     end
 
     for k, object in pairs(self.objects) do
-        object:render(self.adjacentOffsetX, self.adjacentOffsetY)
+        if not object.destroyed then object:render(self.adjacentOffsetX, self.adjacentOffsetY) end
     end
 
     for k, entity in pairs(self.entities) do
@@ -251,6 +289,12 @@ function Room:render()
     end
 
     love.graphics.setStencilTest()
+
+    for k, object in pairs(self.objects) do
+        if not object.destroyed and object.type == 'pot' and object.pickedUp and object.state == 'unbroken' then
+            object:render(self.adjacentOffsetX, self.adjacentOffsetY)
+        end
+    end
 
     --
     -- DEBUG DRAWING OF STENCIL RECTANGLES

@@ -6,7 +6,7 @@
     cogden@cs50.harvard.edu
 ]]
 
-PlayerSwingSwordState = Class{__includes = BaseState}
+PlayerSwingSwordState = Class { __includes = BaseState }
 
 function PlayerSwingSwordState:init(player, dungeon)
     self.player = player
@@ -50,6 +50,12 @@ function PlayerSwingSwordState:init(player, dungeon)
 end
 
 function PlayerSwingSwordState:enter(params)
+    for k, object in pairs(self.dungeon.currentRoom.objects) do
+        if object:collides(self.swordHitbox) and object.type == 'pot' and not object.thrown then
+            self.player:changeState('lift', { pot = object })
+            return
+        end
+    end
 
     -- restart sword swing sound for rapid swinging
     gSounds['sword']:stop()
@@ -60,7 +66,6 @@ function PlayerSwingSwordState:enter(params)
 end
 
 function PlayerSwingSwordState:update(dt)
-    
     -- check if hitbox collides with any entities in the scene
     for k, entity in pairs(self.dungeon.currentRoom.entities) do
         if entity:collides(self.swordHitbox) then
