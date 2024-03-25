@@ -51,7 +51,7 @@ end
 
 function PlayerSwingSwordState:enter(params)
     for k, object in pairs(self.dungeon.currentRoom.objects) do
-        if object:collides(self.swordHitbox) and object.type == 'pot' then
+        if object:collides(self.swordHitbox) and object.type == 'pot' and not object.thrown then
             self.player:changeState('lift', { pot = object })
             return
         end
