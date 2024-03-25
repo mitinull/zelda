@@ -214,19 +214,20 @@ function Room:update(dt)
                 end
             end
 
-            if object.type == 'pot' and object.thrown then
-                if object.x < self.renderOffsetX + 5 then
-                    object.x = self.renderOffsetX + 5
-                    if not object.hitWall then object:destroy() end
-                elseif object.x > self.renderOffsetX + (MAP_WIDTH - 1) * TILE_SIZE - 5 then
-                    object.x = self.renderOffsetX + (MAP_WIDTH - 1) * TILE_SIZE - 5
-                    if not object.hitWall then object:destroy() end
-                elseif object.y < self.renderOffsetY + 5 then
-                    object.y = self.renderOffsetY + 5
-                    if not object.hitWall then object:destroy() end
-                elseif object.y > self.renderOffsetY + (MAP_HEIGHT - 1) * TILE_SIZE - 5 then
-                    object.y = self.renderOffsetY + (MAP_HEIGHT - 1) * TILE_SIZE - 5
-                    if not object.hitWall then object:destroy() end
+            if object.type == 'pot' and object.thrown and object.state == 'unbroken' then
+                for l, entity in pairs(self.entities) do
+                    if not entity.dead and entity:collides(object) then
+                        entity:damage(1)
+                        gSounds['hit-enemy']:play()
+                        object:destroy()
+                    end
+                end
+
+                if not object.hitWall and (object.x < self.renderOffsetX + 7 or
+                        object.x > self.renderOffsetX + (MAP_WIDTH - 1) * TILE_SIZE - 7 or
+                        object.y < self.renderOffsetY + 7 or
+                        object.y > self.renderOffsetY + (MAP_HEIGHT - 1) * TILE_SIZE - 7) then
+                    object:destroy()
                 end
             end
         end

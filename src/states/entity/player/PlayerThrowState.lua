@@ -16,25 +16,12 @@ end
 
 function PlayerThrowState:update(dt)
     if self.entity.currentAnimation.currentFrame == 2 then
-        local newX
-        local newY
-        if self.entity.direction == 'left' then
-            newX = self.pot.x - TILE_SIZE * 4
-            newY = self.pot.y
-        elseif self.entity.direction == 'right' then
-            newX = self.pot.x + TILE_SIZE * 4
-            newY = self.pot.y
-        elseif self.entity.direction == 'up' then
-            newX = self.pot.x
-            newY = self.pot.y - TILE_SIZE * 4
-        elseif self.entity.direction == 'down' then
-            newX = self.pot.x
-            newY = self.pot.y + TILE_SIZE * 4
-        end
-        Timer.tween(.5, {
-            [self.pot] = { x = newX, y = newY }
-        })
-        Timer.after(.5, function()
+        local throwDuration = 0.5
+
+        self.pot.direction = self.entity.direction
+        self.pot.speed = TILE_SIZE * 4 / throwDuration
+
+        Timer.after(throwDuration, function()
             if not self.pot.hitWall then
                 self.pot.destroyed = true
             end

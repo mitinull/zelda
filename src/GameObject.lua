@@ -36,7 +36,17 @@ function GameObject:init(def, x, y)
 end
 
 function GameObject:update(dt)
-
+    if self.speed then
+        if self.direction == 'left' then
+            self.x = self.x - self.speed * dt
+        elseif self.direction == 'right' then
+            self.x = self.x + self.speed * dt
+        elseif self.direction == 'up' then
+            self.y = self.y - self.speed * dt
+        elseif self.direction == 'down' then
+            self.y = self.y + self.speed * dt
+        end
+    end
 end
 
 function GameObject:render(adjacentOffsetX, adjacentOffsetY)
@@ -54,6 +64,7 @@ function GameObject:destroy()
     gSounds['break']:play()
     self.state = 'broken'
     self.hitWall = true
+    self.speed = 0
     Timer.after(1, function()
         self.destroyed = true
     end)
