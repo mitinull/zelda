@@ -121,7 +121,7 @@ function Room:generateObjects()
         table.insert(self.objects,
             GameObject(GAME_OBJECT_DEFS['pot'],
                 MAP_RENDER_OFFSET_X + math.random((MAP_WIDTH - 2)
-                 * TILE_SIZE),
+                    * TILE_SIZE),
                 MAP_RENDER_OFFSET_Y + math.random((MAP_HEIGHT - 2) * TILE_SIZE)))
     end
 end
@@ -291,7 +291,7 @@ function Room:render()
     love.graphics.setStencilTest()
 
     for k, object in pairs(self.objects) do
-        if not object.destroyed and object.type == 'pot' and object.pickedUp then
+        if not object.destroyed and object.type == 'pot' and object.pickedUp and object.state == 'unbroken' then
             object:render(self.adjacentOffsetX, self.adjacentOffsetY)
         end
     end
